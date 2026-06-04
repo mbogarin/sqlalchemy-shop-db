@@ -4,12 +4,12 @@
 from sqlalchemy import Integer, create_engine, String, ForeignKey, select, Boolean
 from sqlalchemy.orm import relationship, Mapped, mapped_column, DeclarativeBase, Session
 
-# from typing import List
 
 # 2. Create engine & base:
 engine = create_engine("sqlite:///shop.db")
 class Base(DeclarativeBase):
     pass
+
 session = Session(engine)
 
 
@@ -22,8 +22,8 @@ class User(Base):
     name: Mapped[str] = mapped_column(String(100))
     email: Mapped[str] = mapped_column(String(200), unique=True)
     
-    # 4a) Set up relationship: A user can have many orders
-    orders: Mapped[list["Order"]] = relationship(back_populates="user")
+    # < a) Relationship: A user can have many orders
+    orders: Mapped[list["Order"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
 # 2. Create a Product table:
 class Product(Base):
@@ -33,7 +33,7 @@ class Product(Base):
     name: Mapped[str] = mapped_column(String(100))
     price: Mapped[int] = mapped_column(Integer)
     
-    # 4b) a product can appear in many orders.
+    # < b) Relationship: a product can appear in many orders.
     orders: Mapped[list["Order"]] = relationship(back_populates="product")
 
 # 3. Create an Order table:
@@ -46,7 +46,7 @@ class Order(Base):
     quantity: Mapped[int] = mapped_column(Integer)
     shipped: Mapped[bool] = mapped_column(Boolean, default=False) # Bonus (1): status column.
     
-    # Relationship: An order belongs to one user & one product.
+    # < c) Relationship: An order belongs to one user & one product.
     user: Mapped["User"] = relationship(back_populates="orders")
     product: Mapped["Product"] = relationship(back_populates="orders")
 
@@ -56,8 +56,6 @@ Base.metadata.create_all(engine)
 
 
 # [PART 4]: INSERT DATA
-# Create a session:
-# session = Session(engine) ??
 
 # 1. Users:
 user1 = User(name="Magali", email="m.bogarin@outlook.com")
@@ -89,7 +87,7 @@ session.commit()
 # [PART 5]: QUERIES
 # 1. Retrieve all users & print info:
 query = select(User)
-users = session.execute(query).scalars().all()
+users = session.execute(select(User)).scalars().all()
 
 print("\n\n\n1. Users:\n-----------------------------")
 for user in users:
@@ -125,29 +123,27 @@ for order in unshipped_orders:
 
 
 # Count total number of orders per user:
-query = select(User)
-users = session.execute(query).scalars().all()
-
 print("\n5. Total Orders per User:\n-----------------------------")
 for user in users:
     total_orders = len(user.orders)
     print(f"- {user.name}: {total_orders} total orders")
 
 
-# UPDATE/DELETE QUERIES:
+# (UPDATE/DELETE QUERIES):
 # 4. Update a product's price:
 query = select(Product).where(Product.name == "Lavender Candle")
 product = session.execute(query).scalars().first()
 
 print("\n\n6. Update Product Price:\n-----------------------------")
 if product:
-    print(f"In the process of updating the product price for: {product.name} ...")
+    print(f'Updating the product price for: {product.name}')
     print(f"- Current Price: ${product.price}")
     product.price = 10
+    
     session.commit()
     
     print(f"- Updated Price: ${product.price}")
-    print(f"\nSuccess! The product price for '{product.name}' was updated!\n")
+    print(f'\nSuccess! The product price for "{product.name}" was updated.\n')
 
 
 # 5. Delete a user by ID:
@@ -157,16 +153,15 @@ user = session.execute(query).scalars().first()
 print("\n7. Delete User:\n-----------------------------")
 if user:
     amount_orders = len(user.orders)
-    print(f"In the process of deleting {amount_orders} order(s) for user: {user.name} ...")
-    orders = user.orders
-
-    for order in orders:
-        print(f"- Deleted order #{order.id} for product '{order.product.name}'")
-        session.delete(order)
+    
+    print(f'Deleting {amount_orders} order(s) for the user: {user.name}')
+    
+    for order in user.orders:
+        print(f'- Order #{order.id} for product "{order.product.name}" will be deleted.')
     
     session.delete(user)
     session.commit()
-    print(f"\nSuccess! The user '{user.name}' was deleted!\n\n\n")
     
-    
-    session.close()
+    print(f'\nSuccess! The user Chase & all related orders were deleted.\n\n\n')
+
+session.close()

@@ -181,7 +181,7 @@ rb-sqlalchemy/
 ├── shop-db.py
 ├── shop.db
 ├── README.md
-└── venv/
+└── .gitignore
 ```
 
 ---

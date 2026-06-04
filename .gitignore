@@ -5,9 +5,6 @@ venv/
 __pycache__/
 *.pyc
 
-# Database file (optional but recommended)
-shop.db
-
 # Environment variables
 .env
 

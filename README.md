@@ -32,14 +32,14 @@ The project showcases core database operations including creating tables, insert
 
 ## Table of Contents
 
-- Installation & Setup
-- Usage
-- Database Structure
-- Features
-- Project Structure
-- Roadmap
-- Collaborators
-- Credits
+- [Installation & Setup](#installation--setup)
+- [Usage](#usage)
+- [Database Structure](#database-structure)
+- [Features](#features)
+- [Project Structure](#project-structure)
+- [Roadmap](#roadmap)
+- [Collaborators](#collaborators)
+- [Credits](#credits)
 
 ---
 

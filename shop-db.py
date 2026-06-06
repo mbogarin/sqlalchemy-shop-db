@@ -4,9 +4,9 @@
 from sqlalchemy import Integer, create_engine, String, ForeignKey, select, Boolean
 from sqlalchemy.orm import relationship, Mapped, mapped_column, DeclarativeBase, Session
 
-
-# 2. Create engine & base:
+# 2. Engine & Base:
 engine = create_engine("sqlite:///shop.db")
+
 class Base(DeclarativeBase):
     pass
 
@@ -80,6 +80,7 @@ order3 = Order(quantity=10, user=user2, product=product2)
 order4 = Order(quantity=1, user=user3, product=product1)
 order5 = Order(quantity=2, user=user3, product=product3)
 
+# Save:
 session.add_all([order1, order2, order3, order4, order5])
 session.commit()
 
@@ -112,8 +113,9 @@ for order in orders:
     print(f"{order.id}: {order.user.name} -> {order.product.name} (x{order.quantity})")
 
 
-# (BONUS):
-# Query all orders that are not shipped:
+
+# + BONUS:
+# A) Query all orders that are not shipped:
 query = select(Order).where(Order.shipped.is_(False))
 unshipped_orders = session.execute(query).scalars().all()
 
@@ -122,7 +124,7 @@ for order in unshipped_orders:
     print(f"{order.id}: {order.user.name} -> {order.product.name} (x{order.quantity})")
 
 
-# Count total number of orders per user:
+# B) Count total number of orders per user:
 print("\n5. Total Orders per User:\n-----------------------------")
 for user in users:
     total_orders = len(user.orders)
@@ -163,5 +165,6 @@ if user:
     session.commit()
     
     print(f'\nSuccess! The user Chase & all related orders were deleted.\n\n\n')
+
 
 session.close()
